@@ -1,28 +1,14 @@
 #ifndef InputSwitches_h
 #define InputSwitches_h
 
+#include <Arduino.h>
+#include "Enumerations.h"
+
 #define SWITCH_1_UP_PIN 7
 #define SWITCH_1_DOWN_PIN 9
 #define SWITCH_2_UP_PIN 8
 #define SWITCH_2_DOWN_PIN 6
 
-enum class Direction
-{
-    Left,
-    Right,
-    None
-};
-enum class Mode
-{
-    Continous,
-    Sequential,
-    None
-};
-struct SwitchState
-{
-    Mode mode;
-    Direction direction;
-};
 class InputSwitches
 {
 public:
@@ -33,4 +19,5 @@ private:
     Direction readDirection();
     Mode readMode();
 };
+
 #endif

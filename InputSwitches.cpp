@@ -21,9 +21,9 @@ Direction InputSwitches::readDirection()
     int dirDown = digitalRead(SWITCH_1_DOWN_PIN);
     int dirUP = digitalRead(SWITCH_1_UP_PIN);
     if (dirDown == LOW)
-        return Direction::Left;
+        return Direction::Distance;
     if (dirUP == LOW)
-        return Direction::Right;
+        return Direction::Feed;
     return Direction::None;
 }
 
@@ -32,8 +32,8 @@ Mode InputSwitches::readMode()
     int modeDOWN = digitalRead(SWITCH_2_DOWN_PIN);
     int modeUP = digitalRead(SWITCH_2_UP_PIN);
     if (modeDOWN == LOW)
-        return Mode::Continous;
+        return Mode::Forward;
     if (modeUP == LOW)
-        return Mode::Sequential;
-    return Mode::None;
+        return Mode::Backward;
+    return Mode::ForwardBackward;
 }
