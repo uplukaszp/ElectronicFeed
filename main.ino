@@ -1,3 +1,5 @@
+#include <TimerOne.h>
+
 #include <LiquidCrystal.h>
 #include <Encoder.h>
 
@@ -13,6 +15,9 @@
 #define SW 3
 #define CLK 2
 #define DT 5
+#define dirPin 11
+#define stepPin 12
+#define en 10
 
 InputSwitches switches;
 LiquidCrystal lcd(LCD_RS, LCD_EN, LCD_D4, LCD_D5, LCD_D6, LCD_D7);
@@ -25,10 +30,28 @@ int32_t lastPos;
 boolean lastIsRunning = false;
 boolean isRunning = false;
 unsigned last_interrupt_time = millis();
+uint8_t stepVal = LOW;
+
+void engineTick()
+{
+    digitalWrite(stepPin, stepVal);
+    if (stepVal == LOW)
+        stepVal = HIGH;
+    else
+        stepVal = LOW;
+}
+void runEngine()
+{
+    Timer1.initialize(feed);
+    Timer1.attachInterrupt(engineTick);
+}
+void stopEngine(){
+    Timer1.detachInterrupt();
+}
 void handleClick()
 {
     unsigned long interrupt_time = millis();
-    if (interrupt_time - last_interrupt_time > 1000)
+    if (interrupt_time - last_interrupt_time > 500)
     {
         if (isRunning)
             isRunning = false;
@@ -40,6 +63,9 @@ void handleClick()
             lcd.clear();
             lcd.setCursor(0, 0);
             lcd.print("START!");
+            runEngine();
+        }else {
+            stopEngine();
         }
     }
     last_interrupt_time = interrupt_time;
@@ -53,6 +79,13 @@ void setup()
     lastPos = encoder.read();
     pinMode(SW, INPUT_PULLUP);
     attachInterrupt(digitalPinToInterrupt(SW), handleClick, LOW);
+    pinMode(stepPin, OUTPUT);
+    pinMode(dirPin, OUTPUT);
+    pinMode(stepPin, OUTPUT);
+    pinMode(en, OUTPUT);
+    // Set the spinning direction CW/CCW:
+    digitalWrite(dirPin, HIGH);
+    digitalWrite(en, LOW);
 }
 uint32_t readValueToAdd()
 {
