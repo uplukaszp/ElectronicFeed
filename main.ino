@@ -18,13 +18,13 @@ InputSwitches switches;
 Menu m;
 Encoder encoder(CLK, DT);
 SwitchState s;
-uint8_t distance = 0;
-uint8_t feed = 0;
+uint8_t distance = 1;
+uint8_t feed = 1;
 int32_t lastPos;
-boolean lastIsRunning = false;
 boolean isRunning = false;
-unsigned last_interrupt_time = millis();
+volatile unsigned long last_interrupt_time = millis();
 uint8_t stepVal = LOW;
+volatile boolean shouldChange = false;
 
 void engineTick()
 {
@@ -45,26 +45,35 @@ void stopEngine()
 }
 void handleClick()
 {
-    unsigned long interrupt_time = millis();
-    if (interrupt_time - last_interrupt_time > 500)
+    if (millis() - last_interrupt_time > 500)
     {
-        if (isRunning)
-            isRunning = false;
+        if (shouldChange)
+            shouldChange = false;
         else
-            isRunning = true;
-        Serial.println(isRunning);
-        if (isRunning)
-        {
-            m.clear();
-            runEngine();
-        }
-        else
-        {
-            m.clear();
-            stopEngine();
-        }
+            shouldChange = true;
     }
-    last_interrupt_time = interrupt_time;
+
+    //     unsigned long interrupt_time = millis();
+
+    //     if (interrupt_time - last_interrupt_time > 500)
+    //     {
+    //         last_interrupt_time = interrupt_time;
+    //         if (isRunning)
+    //             isRunning = false;
+    //         else
+    //             isRunning = true;
+    //         Serial.println(isRunning);
+    //         if (isRunning)
+    //         {
+    //             m.clear();
+    //             runEngine();
+    //         }
+    //         else
+    //         {
+    //             m.clear();
+    //             stopEngine();
+    //         }
+    //     }
 }
 void setup()
 {
@@ -72,7 +81,7 @@ void setup()
 
     lastPos = encoder.read();
     pinMode(SW, INPUT_PULLUP);
-    attachInterrupt(digitalPinToInterrupt(SW), handleClick, LOW);
+    attachInterrupt(digitalPinToInterrupt(SW), handleClick, FALLING);
     pinMode(stepPin, OUTPUT);
     pinMode(dirPin, OUTPUT);
     pinMode(stepPin, OUTPUT);
@@ -108,6 +117,18 @@ void loop()
 {
     s = switches.getCurrentState();
     updateValues();
+    if (shouldChange)
+    {
+        Serial.print("clear");
+        delay(100);
+        m.clear();
+        shouldChange = false;
+        if (isRunning)
+            isRunning = false;
+        else
+            isRunning = true;
+        last_interrupt_time = millis();
+    }
     m.printMenu(s, distance, feed, isRunning);
-    delay(50);
+    // Serial.println(digitalRead(SW));
 }
