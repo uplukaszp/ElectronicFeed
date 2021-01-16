@@ -1,4 +1,3 @@
-#include <TimerOne.h>
 
 #include <LiquidCrystal.h>
 #include <Encoder.h>
@@ -6,13 +5,10 @@
 #include "InputSwitches.h"
 #include "Enumerations.h"
 #include "Menu.h"
-
+#include "Engine.h"
 #define SW 3
 #define CLK 2
 #define DT 5
-#define dirPin 11
-#define stepPin 12
-#define en 10
 
 InputSwitches switches;
 Menu m;
@@ -26,23 +22,6 @@ volatile unsigned long last_interrupt_time = millis();
 uint8_t stepVal = LOW;
 volatile boolean shouldChange = false;
 
-void engineTick()
-{
-    digitalWrite(stepPin, stepVal);
-    if (stepVal == LOW)
-        stepVal = HIGH;
-    else
-        stepVal = LOW;
-}
-void runEngine()
-{
-    Timer1.initialize(feed);
-    Timer1.attachInterrupt(engineTick);
-}
-void stopEngine()
-{
-    Timer1.detachInterrupt();
-}
 void handleClick()
 {
     if (millis() - last_interrupt_time > 500)
@@ -52,43 +31,14 @@ void handleClick()
         else
             shouldChange = true;
     }
-
-    //     unsigned long interrupt_time = millis();
-
-    //     if (interrupt_time - last_interrupt_time > 500)
-    //     {
-    //         last_interrupt_time = interrupt_time;
-    //         if (isRunning)
-    //             isRunning = false;
-    //         else
-    //             isRunning = true;
-    //         Serial.println(isRunning);
-    //         if (isRunning)
-    //         {
-    //             m.clear();
-    //             runEngine();
-    //         }
-    //         else
-    //         {
-    //             m.clear();
-    //             stopEngine();
-    //         }
-    //     }
 }
 void setup()
 {
     Serial.begin(9600);
-
     lastPos = encoder.read();
     pinMode(SW, INPUT_PULLUP);
     attachInterrupt(digitalPinToInterrupt(SW), handleClick, FALLING);
-    pinMode(stepPin, OUTPUT);
-    pinMode(dirPin, OUTPUT);
-    pinMode(stepPin, OUTPUT);
-    pinMode(en, OUTPUT);
-    // Set the spinning direction CW/CCW:
-    digitalWrite(dirPin, HIGH);
-    digitalWrite(en, LOW);
+    EngineClass::init();
 }
 uint32_t readValueToAdd()
 {
@@ -116,6 +66,7 @@ void updateValues()
 void loop()
 {
     s = switches.getCurrentState();
+    EngineClass::setEnabled(s.direction);
     updateValues();
     if (shouldChange)
     {
@@ -124,9 +75,15 @@ void loop()
         m.clear();
         shouldChange = false;
         if (isRunning)
+        {
             isRunning = false;
+            EngineClass::stopEngine();
+        }
         else
+        {
             isRunning = true;
+            EngineClass::startEngine(s.mode, feed, distance);
+        }
         last_interrupt_time = millis();
     }
     m.printMenu(s, distance, feed, isRunning);
