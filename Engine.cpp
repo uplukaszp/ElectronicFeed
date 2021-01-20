@@ -12,15 +12,13 @@ void EngineClass::init()
     pinMode(STEP, OUTPUT);
     pinMode(DIR, OUTPUT);
     pinMode(EN, OUTPUT);
-    digitalWrite(DIR, LOW);
-    digitalWrite(EN, LOW);
 }
 void EngineClass::setEnabled(Direction d)
 {
-    // if (d == Direction::None)
-    //     digitalWrite(EN, LOW);
-    // else
-    //     digitalWrite(EN, HIGH);
+    if (d == Direction::None)
+        digitalWrite(EN, LOW);
+    else
+        digitalWrite(EN, HIGH);
 }
 void EngineClass::doTick()
 {
@@ -49,6 +47,7 @@ void EngineClass::startEngine(Mode m, uint16_t f, uint16_t d)
     stepsToStop = calculateNumberOfSteps();
     stepVal = LOW;
     step = 0;
+    digitalWrite(EN,LOW);   
     digitalWrite(DIR, (m == Mode::Backward) ? LOW : HIGH);
     Timer1.initialize(delay);
     Timer1.attachInterrupt(doTick);
@@ -57,6 +56,7 @@ void EngineClass::startEngine(Mode m, uint16_t f, uint16_t d)
 void EngineClass::stopEngine()
 {
     Timer1.detachInterrupt();
+    digitalWrite(EN,HIGH);   
 }
 
 uint32_t EngineClass::calculateDelay()
@@ -73,9 +73,7 @@ void EngineClass::stopSequence(){
     if(mode==Mode::ForwardBackward){
         step=0;
         digitalWrite(DIR,!digitalRead(DIR));
-    }else
-    {
-        stopEngine();
+    }else{
+        step=0;
     }
-    
 }

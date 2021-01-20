@@ -55,6 +55,10 @@ void updateValues()
     switch (s.direction)
     {
     case Direction::Feed:
+        if (feed > 30 && feed < 100)
+            valueToAdd *= 2;
+        if (feed >= 100)
+            valueToAdd *= 5;
         feed += valueToAdd;
         if (feed >= 2000)
             feed = 1;
@@ -76,8 +80,9 @@ void updateValues()
 void loop()
 {
     s = switches.getCurrentState();
-    EngineClass::setEnabled(s.direction);
     updateValues();
+    if (!isRunning)
+        EngineClass::setEnabled(s.direction);
     if (shouldChange)
     {
         Serial.print("clear");
