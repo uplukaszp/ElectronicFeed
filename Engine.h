@@ -15,16 +15,21 @@ class EngineClass
 public:
     static void init();
     static void setEnabled(Direction d);
-    static void startEngine(Mode m, uint16_t feed, uint16_t distance);
+    static void startEngine(Mode m, uint16_t f, uint16_t d);
     static void stopEngine();
 
 private:
     static void doTick();
-    static uint32_t calculateDelay(uint16_t feed);
-    static uint32_t calculateNumberOfSteps(uint16_t distance);
+    static void stopSequence();
+    static uint32_t calculateDelay();
+    static uint32_t calculateNumberOfSteps();
     static volatile uint32_t stepsToStop;
     static volatile uint32_t step;
     static unsigned long delay;
     static volatile uint8_t stepVal;
+    static volatile uint16_t distance;
+    static volatile uint16_t feed;
+    static volatile Mode mode;
+
 };
 #endif

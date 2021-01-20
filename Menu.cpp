@@ -48,7 +48,7 @@ void Menu::printDirection(SwitchState s)
     }
 }
 
-void Menu::printSettings(SwitchState s, uint8_t distance, uint8_t feed)
+void Menu::printSettings(SwitchState s, uint16_t distance, uint16_t feed)
 {
     Direction d = s.direction;
     lcd.setCursor(7, 1);
@@ -74,7 +74,7 @@ void Menu::printRunning()
     lcd.setCursor(0, 0);
     lcd.print("START!");
 }
-void Menu::printMenu(SwitchState s, uint8_t distance, uint8_t feed, boolean isEngineRunning)
+void Menu::printMenu(SwitchState s, uint16_t distance, uint16_t feed, boolean isEngineRunning)
 {
     if (!isEngineRunning)
     {

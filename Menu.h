@@ -16,13 +16,13 @@ class Menu
 {
 public:
     Menu();
-    void printMenu(SwitchState s, uint8_t distance, uint8_t feed, boolean isEngineRunning);
+    void printMenu(SwitchState s, uint16_t distance, uint16_t feed, boolean isEngineRunning);
     void clear();
 
 private:
     void printMode(SwitchState s);
     void printDirection(SwitchState s);
-    void printSettings(SwitchState s, uint8_t distance, uint8_t feed);
+    void printSettings(SwitchState s, uint16_t distance, uint16_t feed);
     void printRunning();
     LiquidCrystal lcd;
 };
