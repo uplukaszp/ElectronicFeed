@@ -34,7 +34,6 @@ void handleClick()
 }
 void setup()
 {
-    Serial.begin(9600);
     lastPos = encoder.read();
     pinMode(SW, INPUT_PULLUP);
     attachInterrupt(digitalPinToInterrupt(SW), handleClick, FALLING);
@@ -102,5 +101,4 @@ void loop()
         last_interrupt_time = millis();
     }
     m.printMenu(s, distance, feed, isRunning);
-    // Serial.println(digitalRead(SW));
 }
